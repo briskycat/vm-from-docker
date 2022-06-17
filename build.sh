@@ -10,6 +10,8 @@ IMG_FILE="linux.img"
 
 echo_green '[Builder]'
 create_builder
+
+echo_green '[Guest OS Archive]'
 create_os_tar ubuntu "$DIR/work/os.tar"
 
 run_in_builder "$DIR/builder" "$DIR/work" "$DIR/mnt" "
