@@ -34,8 +34,8 @@ create_os_tar() {
     local os="$1"
     local os_tar_file="$2"
 
+    echo_blue " >>> ${FUNCNAME}$(printf ' %s' "$@")"
     if [ "$os/Dockerfile" -nt "$os_tar_file" ]; then
-        echo_blue " >>> ${FUNCNAME}$(printf ' %s' "$@")"
         docker build -f "$os/Dockerfile" -t "${REPO}/$os" "$os"
 
         local container_id=$(docker run -d "${REPO}/$os" /bin/true)
@@ -125,15 +125,6 @@ create_disk_image() {
     truncate -s "$DRIVE_IMAGE_SIZE" "$disk_image_file"
 
     echo "Creating partition table..."
-#     sfdisk --wipe always --wipe-partitions always "$disk_image_file" <<END
-# label: gpt
-# label-id: 1038a46a-5def-4e6a-90ed-29f8d9d84990
-# device: linux.img
-# unit: sectors
-
-# linux.img1 : type="21686148-6449-6E6F-744E-656564454649", size="1MiB", attrs="RequiredPartition,LegacyBIOSBootable"
-# linux.img2 : type="4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709", bootable, attrs="RequiredPartition,LegacyBIOSBootable"
-# END
 
     parted --script "$disk_image_file" \
         mklabel gpt \
@@ -152,7 +143,6 @@ setup_loopback_devices() {
     local env_file="$2"
 
     echo_blue " >>> ${FUNCNAME}$(printf ' %s' "$@")"
-    # local root_part_start_sectors=$(sfdisk -l "$disk_image_file" | grep "^${disk_image_file}2" | awk '{print $2}')
     sudo losetup -D
     LOOPDEVICE_DRIVE=$(sudo losetup -P -f --show "$disk_image_file")
     echo -e "\n[Using ${LOOPDEVICE_DRIVE} loop device for the drive image]"
