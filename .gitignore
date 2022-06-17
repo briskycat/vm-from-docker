@@ -1,6 +1,3 @@
 *.swp
 .DS_store
 linux.*
-alpine.*
-debian.*
-ubuntu.*

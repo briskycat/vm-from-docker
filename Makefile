@@ -2,60 +2,22 @@ COL_RED="\033[0;31m"
 COL_GRN="\033[0;32m"
 COL_END="\033[0m"
 
-REPO=docker-to-linux
+REPO=vm-from-docker
 
 .PHONY:
-debian: debian.img
-
-.PHONY:
-ubuntu: ubuntu.img
-
-.PHONY:
-alpine: alpine.img
-
-%.tar:
-	@echo ${COL_GRN}"[Dump $* directory structure to tar archive]"${COL_END}
-	docker build -f $*/Dockerfile -t ${REPO}/$* .
-	docker export -o $*.tar `docker run -d ${REPO}/$* /bin/true`
-
-%.dir: %.tar
-	@echo ${COL_GRN}"[Extract $* tar archive]"${COL_END}
-	mkdir -p $*.dir
-	tar -xvf $*.tar -C $*.dir
-
-%.img: builder %.dir
-	@echo ${COL_GRN}"[Create $* disk image]"${COL_END}
-	docker run -it \
-		-v `pwd`:/os:rw \
-		-e DISTR=$* \
-		--privileged \
-		--cap-add SYS_ADMIN \
-		${REPO}/builder bash /os/create_image.sh
-
-.PHONY:
-builder:
-	@echo ${COL_GRN}"[Ensure builder is ready]"${COL_END}
-	@if [ "`docker images -q ${REPO}/builder`" = '' ]; then\
-		docker build -f Dockerfile -t ${REPO}/builder .;\
-	fi
-
-.PHONY:
-builder-interactive:
-	docker run -it \
-		-v `pwd`:/os:rw \
-		--cap-add SYS_ADMIN \
-		${REPO}/builder bash
+all:
+	/bin/bash build.sh
 
 .PHONY:
 clean: clean-docker-procs clean-docker-images
 	@echo ${COL_GRN}"[Remove leftovers]"${COL_END}
-	rm -rf mnt debian.* alpine.* ubuntu.*
+	rm -f work/linux.img work/os.tar work/loopback.env
 
 .PHONY:
 clean-docker-procs:
 	@echo ${COL_GRN}"[Remove Docker Processes]"${COL_END}
-	@if [ "`docker ps -qa -f=label=com.iximiuz-project=${REPO}`" != '' ]; then\
-		docker rm `docker ps -qa -f=label=com.iximiuz-project=${REPO}`;\
+	@if [ "`docker ps -qa -f=label=source=${REPO}`" != '' ]; then\
+		docker rm `docker ps -qa -f=label=source=${REPO}`;\
 	else\
 		echo "<noop>";\
 	fi
@@ -68,4 +30,3 @@ clean-docker-images:
 	else\
 		echo "<noop>";\
 	fi
-

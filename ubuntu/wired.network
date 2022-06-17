@@ -1,0 +1,7 @@
+[Match]
+Name=en*
+
+[Network]
+# Gateway=0.0.0.0
+IPForward=ipv4
+DHCP=ipv4
