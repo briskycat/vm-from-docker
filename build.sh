@@ -33,7 +33,7 @@ setup_loopback_devices /work/${IMG_FILE} /work/loopback.env
 run_in_builder_with_dev "$DIR/builder" "$DIR/work" "$DIR/mnt" "${LOOPDEVICE_DRIVE}" "
 . ./functions.sh
 
-ROOT_PART_UUID=$(uuidgen)
+ROOT_PART_UUID=\$(uuidgen)
 
 echo_green '[Filesystem]'
 format_root_partition /dev/sda2 \$ROOT_PART_UUID
